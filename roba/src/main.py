@@ -34,7 +34,6 @@ type Query {
 """
 
 engine = Engine(sdl=sdl, modules=[ApolloFederationPlugin(engine_sdl=sdl)])
-app = TartifletteApp(
-    engine=engine, path="/", graphiql=graphiql if not DISABLE_GRAPHIQL else False
+app = TartifletteApp(engine=engine, path="/", graphiql=graphiql if not DISABLE_GRAPHIQL else False
 )
 
