@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 
+import setuptools
 from setuptools import find_packages, setup
 from setuptools.command.build_ext import build_ext
 from setuptools.command.build_py import build_py
@@ -60,7 +61,7 @@ _TEST_REQUIRE = [
 
 _BENCHMARK_REQUIRE = ["pytest-benchmark==3.2.2"]
 
-_VERSION = "1.1.3"
+_VERSION = "1.1.4"
 
 _PACKAGES = find_packages(exclude=["tests*"])
 
@@ -93,4 +94,8 @@ setup(
     extras_require={"test": _TEST_REQUIRE, "benchmark": _BENCHMARK_REQUIRE},
     cmdclass={"build_ext": BuildExtCmd, "build_py": BuildPyCmd},
     include_package_data=True,
+    ext_modules=[
+        # force the creation of platform specific wheels
+        setuptools.Extension(name="libgraphqlparser", sources=[])
+    ],
 )
