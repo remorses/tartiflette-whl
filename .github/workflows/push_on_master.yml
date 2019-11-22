@@ -4,42 +4,69 @@ on:
     branches:
       - master
 jobs:
-  build_publish_and_release:
-    runs-on: ubuntu-latest
+  # build_publish_and_release:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@master
+  #     - name: style
+  #       uses: ./
+  #       with:
+  #         args: make style
+  #     - name: functional test
+  #       uses: ./
+  #       with:
+  #         args: make test-functional
+  #     - name: unit test
+  #       uses: ./
+  #       with:
+  #         args: make test-unit
+  #     - name: SonarCloud Scan
+  #       uses: sonarsource/sonarcloud-github-action@master
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #     - name: build and publish to pypi
+  #       uses: ./.github/actions/pypi/
+  #       env:
+  #         TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+  #         TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
+  #     - name: set version and changelog
+  #       uses: ./.github/actions/shell/
+  #       if: github.ref == 'refs/heads/master'
+  #       with:
+  #         entrypoint: make
+  #         args: github-action-version-and-changelog
+  #     - name: release
+  #       uses: ./.github/actions/release/
+  #       if: github.ref == 'refs/heads/master'
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         REPOSITORY: tartiflette
+  #         USERNAME: tartiflette
+  deploy:
+    name: Test cibuildwheel on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-18.04, windows-latest, macos-latest]
+        # os: [ubuntu-18.04]
     steps:
-      - uses: actions/checkout@master
-      - name: style
-        uses: ./
-        with:
-          args: make style
-      - name: functional test
-        uses: ./
-        with:
-          args: make test-functional
-      - name: unit test
-        uses: ./
-        with:
-          args: make test-unit
-      - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      - name: build and publish to pypi
-        uses: ./.github/actions/pypi/
-        env:
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
-      - name: set version and changelog
-        uses: ./.github/actions/shell/
-        if: github.ref == 'refs/heads/master'
-        with:
-          entrypoint: make
-          args: github-action-version-and-changelog
-      - name: release
-        uses: ./.github/actions/release/
-        if: github.ref == 'refs/heads/master'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPOSITORY: tartiflette
-          USERNAME: tartiflette
+    - uses: actions/checkout@v1
+    - run: make init
+    - uses: actions/setup-python@v1
+      name: Install Python ${{ matrix.python_version }}
+      with:
+        python-version: "3.7"
+    - run: sudo apt-get update && sudo apt-get install -y cmake bison flex git jq
+      if: matrix.os == 'ubuntu-18.04'
+    - run: choco install winflexbison3
+      if: matrix.os == 'windows-latest'
+    - run: brew install cmake flex bison@3.4 &&  echo 'export PATH="/usr/local/opt/flex/bin:$PATH"' >> ~/.bash_profile && . ~/.bash_profile
+      if: matrix.os == 'macos-latest'
+    - run: pip install -U cibuildwheel twine wheel
+    - run: pwd && bash ./.github/scripts/pypi.sh
+      shell: bash
+      env:
+        TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+        TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
+        TWINE_REPOSITORY_URL: "https://test.pypi.org/legacy/"

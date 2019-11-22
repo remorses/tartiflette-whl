@@ -1,7 +1,8 @@
 #!/bin/bash
+set -ex
 
-if [ -d "./libgraphqlparser" ]; then
-	rm -rf ./libgraphqlparser
+if [ -d "./libgraphqlparser/libgraphqlparser*" ]; then
+	rm -rf "./libgraphqlparser/libgraphqlparser*"
 fi
 
 make init
@@ -24,10 +25,11 @@ check_if_setup_file_exists() {
 }
 
 upload_package() {
-	python setup.py sdist
-    cibuildwheel --output-dir dist
+	python setup.py sdist bdist_wheel
+    # cibuildwheel --output-dir dist
+    echo listing_files
     ls dist
-	twine upload dist/*
+	twine upload --skip-existing dist/*
 }
 
 set_version_if_not_master
