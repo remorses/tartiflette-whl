@@ -29,11 +29,11 @@ upload_package() {
     # cibuildwheel --output-dir dist
     echo listing_files
     ls dist
-	twine upload --skip-existing dist/*
     for whl in dist/*.whl; do
         auditwheel repair "$whl" -w dist
     done
-    ls dist
+    rm "dist/*-linux_x86_64.whl"
+	twine upload --skip-existing dist/*
 }
 
 set_version_if_not_master
