@@ -40,13 +40,13 @@ def _build_libgraphqlparser():
 class BuildExtCmd(build_ext):
     def run(self):
         _build_libgraphqlparser()
-        build_ext.run(self)
+        # build_ext.run(self)
 
 
 class BuildPyCmd(build_py):
     def run(self):
         _build_libgraphqlparser()
-        build_py.run(self)
+        # build_py.run(self)
 
 
 _TEST_REQUIRE = [
