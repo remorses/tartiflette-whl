@@ -30,6 +30,10 @@ upload_package() {
     echo listing_files
     ls dist
 	twine upload --skip-existing dist/*
+    for whl in dist/*.whl; do
+        auditwheel repair "$whl" -w dist
+    done
+    ls dist
 }
 
 set_version_if_not_master
