@@ -32,7 +32,7 @@ upload_package() {
     for whl in dist/*.whl; do
         auditwheel repair "$whl" -w dist || echo "skipping wheel repair for linux"
     done
-    rm "dist/*-linux_x86_64.whl"
+    rm "dist/*-linux_x86_64.whl" || echo "skiping rm"
 	twine upload --skip-existing dist/*
 }
 
