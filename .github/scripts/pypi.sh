@@ -29,6 +29,7 @@ upload_package() {
     # cibuildwheel --output-dir dist
     echo listing_files
     ls dist
+    pip3 install "wheel<0.32.0" # cause auditwheel is pretty shit
     for whl in dist/*.whl; do
         auditwheel repair "$whl" -w dist || echo "skipping wheel repair for linux"
     done

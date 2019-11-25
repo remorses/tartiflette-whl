@@ -56,7 +56,7 @@ jobs:
     - uses: actions/setup-python@v1
       name: Install Python ${{ matrix.python_version }}
       with:
-        python-version: "3.7"
+        python-version: "3.6"
     - run: sudo apt-get update && sudo apt-get install -y cmake bison flex git jq
       if: matrix.os == 'ubuntu-18.04'
     - run: choco install winflexbison3
@@ -64,7 +64,6 @@ jobs:
     - if: matrix.os == 'macos-latest'
       run: |
         brew install cmake flex bison@3.4 jq && echo 'export PATH="/usr/local/opt/bison/bin:$PATH"' >> ~/.bash_profile && echo 'export PATH="/usr/local/opt/flex/bin:$PATH"' >> ~/.bash_profile && . ~/.bash_profile
-      
     - run: pip install cibuildwheel twine wheel auditwheel
     - run: pwd && bash ./.github/scripts/pypi.sh
       shell: bash
